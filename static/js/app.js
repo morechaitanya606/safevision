@@ -436,7 +436,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.status === 'healthy') {
                 statusEl.innerHTML = `
                     <span class="status-dot"></span>
-                    <span>Model Ready ${data.world_model ? '(YOLO-World)' : '(YOLOv8)'}</span>
+                    <span>Model Ready (${data.detection_method || 'YOLOv8'})</span>
                 `;
             }
         } catch (e) {

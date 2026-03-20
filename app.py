@@ -202,7 +202,7 @@ def health():
     return jsonify({
         "status": "healthy",
         "model_loaded": True,
-        "world_model": detector.use_world_model,
+        "detection_method": "YOLOv8 + Haar Cascades",
         "timestamp": time.time()
     })
 
