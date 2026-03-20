@@ -1,7 +1,7 @@
 # SafeVision - Safety Goggles Detection
 FROM python:3.11-slim
 
-# Install minimal system dependencies for OpenCV headless
+# Install minimal system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
@@ -10,7 +10,9 @@ WORKDIR /app
 
 # Install Python dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt gunicorn
+RUN pip install --no-cache-dir -r requirements.txt gunicorn && \
+    pip uninstall -y opencv-python && \
+    pip install --no-cache-dir opencv-python-headless
 
 # Copy application code
 COPY . .
