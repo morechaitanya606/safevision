@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeVision — Safety Goggles Detection System</title>
+    <meta name="description" content="AI-powered safety goggles and PPE detection system using YOLO computer vision. Detect safety compliance in images, videos, and live camera feeds.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- Animated background particles -->
+    <div class="bg-particles" id="bgParticles"></div>
+
+    <!-- Main Container -->
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <circle cx="11" cy="16" r="6" stroke="url(#grad1)" stroke-width="2.5" fill="none"/>
+                        <circle cx="21" cy="16" r="6" stroke="url(#grad1)" stroke-width="2.5" fill="none"/>
+                        <path d="M17 16H15" stroke="url(#grad1)" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M5 16C3 14 2 12 2 12" stroke="url(#grad1)" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M27 16C29 14 30 12 30 12" stroke="url(#grad1)" stroke-width="2" stroke-linecap="round"/>
+                        <defs>
+                            <linearGradient id="grad1" x1="0" y1="0" x2="32" y2="32">
+                                <stop offset="0%" stop-color="#00f5d4"/>
+                                <stop offset="100%" stop-color="#7b2ff7"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div>
+                    <h1>SafeVision</h1>
+                    <p class="subtitle">AI-Powered Safety Goggles Detection</p>
+                </div>
+            </div>
+            <div class="header-status" id="modelStatus">
+                <span class="status-dot"></span>
+                <span>Model Ready</span>
+            </div>
+        </header>
+
+        <!-- Tab Navigation -->
+        <nav class="tab-nav">
+            <button class="tab-btn active" data-tab="image" id="tabImage">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <path d="M21 15l-5-5L5 21"/>
+                </svg>
+                Image Detection
+            </button>
+            <button class="tab-btn" data-tab="video" id="tabVideo">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="4" width="16" height="16" rx="2"/>
+                    <path d="M22 7l-5 3.5L22 14V7z"/>
+                </svg>
+                Video Detection
+            </button>
+            <button class="tab-btn" data-tab="webcam" id="tabWebcam">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="10" r="3"/>
+                    <path d="M5 7h1a2 2 0 012-2h8a2 2 0 012 2h1a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9a2 2 0 012-2z"/>
+                </svg>
+                Live Camera
+            </button>
+        </nav>
+
+        <!-- Content Area -->
+        <main class="content-area">
+            <!-- Image Detection Tab -->
+            <section class="tab-content active" id="imageTab">
+                <div class="detection-grid">
+                    <div class="upload-zone" id="imageDropZone">
+                        <div class="upload-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                        </div>
+                        <h3>Drop Image Here</h3>
+                        <p>or click to browse • JPG, PNG, WEBP</p>
+                        <input type="file" id="imageInput" accept="image/*" hidden>
+                        <div class="preview-container" id="imagePreview" style="display:none;">
+                            <img id="previewImg" alt="Preview">
+                            <button class="remove-btn" id="removeImage">✕</button>
+                        </div>
+                    </div>
+                    <div class="result-zone" id="imageResultZone">
+                        <div class="placeholder-content">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            <p>Detection results will appear here</p>
+                        </div>
+                        <div class="result-content" id="imageResult" style="display:none;">
+                            <img id="resultImg" alt="Detection Result">
+                        </div>
+                    </div>
+                </div>
+                <button class="detect-btn" id="detectImageBtn" disabled>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="M21 21l-4.35-4.35"/>
+                    </svg>
+                    Analyze Safety
+                </button>
+                <div class="results-panel" id="imageResultsPanel" style="display:none;"></div>
+            </section>
+
+            <!-- Video Detection Tab -->
+            <section class="tab-content" id="videoTab">
+                <div class="detection-grid">
+                    <div class="upload-zone" id="videoDropZone">
+                        <div class="upload-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                        </div>
+                        <h3>Drop Video Here</h3>
+                        <p>or click to browse • MP4, AVI, MOV</p>
+                        <input type="file" id="videoInput" accept="video/*" hidden>
+                        <div class="preview-container" id="videoPreview" style="display:none;">
+                            <video id="previewVideo" controls></video>
+                            <button class="remove-btn" id="removeVideo">✕</button>
+                        </div>
+                    </div>
+                    <div class="result-zone" id="videoResultZone">
+                        <div class="placeholder-content">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3">
+                                <polygon points="5 3 19 12 5 21 5 3"/>
+                            </svg>
+                            <p>Processed video will appear here</p>
+                        </div>
+                        <div class="result-content" id="videoResult" style="display:none;">
+                            <video id="resultVideo" controls></video>
+                        </div>
+                    </div>
+                </div>
+                <button class="detect-btn" id="detectVideoBtn" disabled>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="M21 21l-4.35-4.35"/>
+                    </svg>
+                    Process Video
+                </button>
+                <div class="progress-bar-container" id="videoProgress" style="display:none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <span class="progress-text" id="progressText">Processing...</span>
+                </div>
+                <div class="results-panel" id="videoResultsPanel" style="display:none;"></div>
+            </section>
+
+            <!-- Webcam Detection Tab -->
+            <section class="tab-content" id="webcamTab">
+                <div class="webcam-container">
+                    <div class="webcam-feed" id="webcamFeed">
+                        <div class="placeholder-content" id="webcamPlaceholder">
+                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3">
+                                <circle cx="12" cy="10" r="3"/>
+                                <path d="M5 7h1a2 2 0 012-2h8a2 2 0 012 2h1a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9a2 2 0 012-2z"/>
+                            </svg>
+                            <p>Click "Start Camera" to begin live detection</p>
+                        </div>
+                        <img id="webcamStream" src="" alt="Webcam Feed" style="display:none;">
+                        <div class="webcam-overlay" id="webcamOverlay" style="display:none;">
+                            <div class="live-badge">
+                                <span class="live-dot"></span>
+                                LIVE
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="webcam-controls">
+                    <button class="detect-btn webcam-start" id="startWebcamBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="10" r="3"/>
+                            <path d="M5 7h1a2 2 0 012-2h8a2 2 0 012 2h1a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9a2 2 0 012-2z"/>
+                        </svg>
+                        Start Camera
+                    </button>
+                    <button class="detect-btn webcam-stop" id="stopWebcamBtn" style="display:none;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="6" y="6" width="12" height="12" rx="1"/>
+                        </svg>
+                        Stop Camera
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>SafeVision — Powered by YOLOv8 & Computer Vision</p>
+        </footer>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display:none;">
+        <div class="loader">
+            <div class="loader-ring"></div>
+            <p>Analyzing safety compliance...</p>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
