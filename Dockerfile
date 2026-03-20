@@ -8,11 +8,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Install Python dependencies
+# Install opencv-python-headless FIRST so ultralytics doesn't pull the GUI version
+RUN pip install --no-cache-dir opencv-python-headless>=4.8.0
+
+# Install remaining dependencies (ultralytics will skip opencv since cv2 already exists)
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt gunicorn && \
-    pip uninstall -y opencv-python && \
-    pip install --no-cache-dir opencv-python-headless
+RUN pip install --no-cache-dir -r requirements.txt gunicorn
 
 # Copy application code
 COPY . .
